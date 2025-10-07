@@ -8,7 +8,7 @@ class TodoProvider extends ChangeNotifier {
   List<Todo> todos = [];
 
   Future<void> getTodoList() async {
-    Uri url = Uri.parse("http://10.0.2.1:8000/api/api/todo");
+    Uri url = Uri.parse("http://10.0.2.1:8000/api/todo");
 
     try {
       http.Response response = await http.get(url);
