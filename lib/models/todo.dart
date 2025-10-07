@@ -22,7 +22,7 @@ class Todo {
       createdBy: json['created_by'],
       description: json['description'],
       pathName: json['path_name'],
-      createdAt: json['created_at'],
+      createdAt: DateTime.parse(json['created_at']),
     );
   }
 }

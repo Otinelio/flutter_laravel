@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.grey.shade300,
                       ),
                       child: Image.network(
-                        'http://10.0.2.2:8000${todo.pathName}',
+                        'http://192.168.1.78:8000${todo.pathName}',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   color: Colors.red,
                                 ),
                                 leading: Icon(
-                                  Icons.edit,
+                                  Icons.delete,
                                   size: 24,
                                   color: Colors.red,
                                 ),
