@@ -8,22 +8,35 @@ class TodoProvider extends ChangeNotifier {
   List<Todo> todos = [];
 
   Future<void> getTodoList() async {
-    Uri url = Uri.parse("http://10.0.2.1:8000/api/api/todo");
-
+    // Utilisez l'adresse IP de votre serveur Laravel
+    Uri url = Uri.parse("http://192.168.1.78:8000/api/todo");
+    
+    debugPrint("Tentative de connexion à l'API: $url");
+    
     try {
-      http.Response response = await http.get(url);
+      // Ajout d'en-têtes pour éviter les problèmes CORS
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+      
+      http.Response response = await http.get(url, headers: headers);
+      debugPrint("Statut de la réponse: ${response.statusCode}");
+      debugPrint("Corps de la réponse: ${response.body}");
 
       if (response.statusCode == 200) {
         Map<String, dynamic> resultat = json.decode(response.body);
+        debugPrint("Structure JSON: ${resultat.keys}");
 
         todos = List<Todo>.from(
           resultat['data'].map((value) => Todo.fromjson(value)),
         );
+        debugPrint("Nombre d'éléments récupérés: ${todos.length}");
       } else {
-        throw Exception('Error');
+        throw Exception('Erreur HTTP: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint("ERREUR: ${e.toString()}");
     }
 
     notifyListeners();
