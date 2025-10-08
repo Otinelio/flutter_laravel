@@ -17,7 +17,7 @@ class TodoProvider extends ChangeNotifier {
       // Ajout d'en-têtes pour éviter les problèmes CORS
       Map<String, String> headers = {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        'Accept': 'application/json', 
       };
       
       http.Response response = await http.get(url, headers: headers);
