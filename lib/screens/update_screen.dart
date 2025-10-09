@@ -1,22 +1,40 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_laravel/models/todo.dart';
 import 'package:flutter_laravel/providers/todo_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-class CreateScreen extends StatefulWidget {
-  const CreateScreen({super.key});
+class UpdateScreen extends StatefulWidget {
+  const UpdateScreen({super.key, required this.todo});
+
+  final Todo todo;
 
   @override
-  State<CreateScreen> createState() => _CreateScreenState();
+  State<UpdateScreen> createState() => _UpdateScreenState();
 }
 
-class _CreateScreenState extends State<CreateScreen>
+class _UpdateScreenState extends State<UpdateScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
+  final _formKey = GlobalKey<FormState>();
+  String _title = '';
+  String _createdBy = '';
+  String _description = '';
+  String _pathName = '';
+  XFile? _imageFile;
+  bool loading = false;
+
   @override
   void initState() {
+    setState(() {
+      _title = widget.todo.title;
+      _createdBy = widget.todo.createdBy;
+      _description = widget.todo.description ?? "";
+      _pathName = widget.todo.pathName ?? '';
+    });
+
     super.initState();
     _controller = AnimationController(vsync: this);
   }
@@ -27,15 +45,9 @@ class _CreateScreenState extends State<CreateScreen>
     super.dispose();
   }
 
-  final _formKey = GlobalKey<FormState>();
-  String _title = '';
-  String _createdBy = '';
-  String _description = '';
-  XFile? _imageFile;
-  bool loading = false;
-
-  void _onSave() async {
-    if (_formKey.currentState!.validate() && _imageFile != null) {
+  void _onEdit() async {
+    if (_formKey.currentState!.validate()) {
+      
       setState(() {
         loading = true;
       });
@@ -43,11 +55,12 @@ class _CreateScreenState extends State<CreateScreen>
 
       await context
           .read<TodoProvider>()
-          .createTodoList(
+          .updateTodoList(
+            id: widget.todo.id,
             title: _title,
             createdBy: _createdBy,
             description: _description,
-            imageFile: _imageFile!,
+            imageFile: _imageFile,
           )
           .whenComplete(() {
             setState(() {
@@ -58,6 +71,7 @@ class _CreateScreenState extends State<CreateScreen>
           });
     }
   }
+
   void _pickImage() async {
     XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
@@ -112,6 +126,20 @@ class _CreateScreenState extends State<CreateScreen>
                             ),
                           ),
                         ),
+                      ) else 
+                      Container(
+                        alignment: Alignment.center,
+                        width: MediaQuery.of(context).size.width * 1,
+                        margin: EdgeInsets.only(bottom: 8),
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          child: Card(
+                            child: Image.network(
+                              "http://192.168.1.78:8000${_pathName}",
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
                       ),
                     TextFormField(
                       decoration: InputDecoration(
@@ -134,6 +162,7 @@ class _CreateScreenState extends State<CreateScreen>
                         ),
                         hintText: 'Title',
                       ),
+                      initialValue: _title,
                       onSaved: (value) => {_title = value ?? ''},
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -165,6 +194,7 @@ class _CreateScreenState extends State<CreateScreen>
                         ),
                         hintText: 'Created by',
                       ),
+                      initialValue: _createdBy,
                       onSaved: (value) => {_createdBy = value ?? ''},
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -188,6 +218,7 @@ class _CreateScreenState extends State<CreateScreen>
                         ),
                         hintText: 'Description',
                       ),
+                      initialValue: _description,
                       onSaved: (value) => {_description = value ?? ''},
                     ),
                     SizedBox(height: 10),
@@ -201,9 +232,9 @@ class _CreateScreenState extends State<CreateScreen>
                               borderRadius: BorderRadius.circular(5),
                             ),
                           ),
-                          onPressed: _onSave,
+                          onPressed: _onEdit,
                           child: Text(
-                            'Save',
+                            'Update',
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
@@ -217,7 +248,7 @@ class _CreateScreenState extends State<CreateScreen>
                           ),
                           onPressed: _pickImage,
                           child: Text(
-                            'Upload picture',
+                            'Change picture',
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
